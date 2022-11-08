@@ -1,0 +1,7 @@
+retour
+C'est parti !
+Pour qui voulez-vous créer un menu ?
+Si vous possédez plusieurs animaux, vous pourrez les ajouter à la suite
+
+Un chat assisUn chat
+Un chien assisUn chien
