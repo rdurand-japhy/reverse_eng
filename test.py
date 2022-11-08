@@ -10,16 +10,17 @@ import random
 import tkinter as tk
 from tkinter import ttk
 import pickle
+from calibration import *
 NAME = ''
 DOG_MENU = ''
 
-fitness_level = {'lazy' : {'x': 486, 'y':637},
-                 'normal' : {'x': 977, 'y' : 630},
-                 'very active' :  {'x': 1427, 'y' : 630}}
+fitness_level = {'lazy' : {'x': position_peu_actif.x, 'y':position_peu_actif.y},
+                 'normal' : {'x': position_moyen_actif.x, 'y' : position_moyen_actif.y},
+                 'very active' :  {'x': position_tres_actif.x, 'y' : position_tres_actif.y}}
 
-body_type = {'thin' : {'x': 486, 'y':637},
-             'normal' : {'x': 977, 'y' : 630},
-              'fat' :  {'x': 1427, 'y' : 630}} #we dont body shame here
+body_type = {'thin' : {'x': position_peu_maigre.x, 'y':position_peu_maigre.y},
+             'normal' : {'x': position_ideal_corps.x, 'y' : position_ideal_corps.y},
+              'fat' :  {'x': position_gros_coprs.x, 'y' : position_gros_coprs.x}} #we dont body shame here
 
 
 def popupmsg(msg):
@@ -63,16 +64,25 @@ def calibrate():
     time.sleep(1)
     autogui.write(get_name())
     autogui.press('enter')
+    popupmsg('hover over female')
+    time.sleep(2)
+    variables.append(autogui.position)
     popupmsg('hover over male')
     time.sleep(2)
     autogui.click(autogui.position())
+    variables.append(autogui.position)
+    popupmsg("hover over non")
+    time.sleep(1.5)
     variables.append(autogui.position)
     popupmsg("hover over oui")
     time.sleep(1.5)
     autogui.click(autogui.position())
     variables.append(autogui.position)
     time.sleep(2)
-    tab_presses(2)
+    popupmsg("hover over the text box")
+    time.sleep(2)
+    variables.append(autogui.position())
+    autogui.click(autogui.position(), clicks=2)
     autogui.write('shiba inu')
     autogui.press('tab')
     autogui.press('down')
@@ -106,6 +116,7 @@ def calibrate():
         pickle.dump(variables, file)
 
 def navigate_site():
+    age = 3
     weight = 5
 
     # create parameters to automate teh seleection of the dictionnaries
@@ -132,7 +143,9 @@ def navigate_site():
     tab_presses(2)
     autogui.press('enter')
     time.sleep(1)
-    tab_presses(5)
+    tab_presses(3)
+    autogui.write(str(age))
+    tab_presses(2)
     autogui.press('enter')
     time.sleep(2)
     autogui.click(fitness_level['lazy']['x'], fitness_level['lazy']['y'])
