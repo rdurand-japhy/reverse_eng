@@ -21,19 +21,19 @@ sexe_female_position = (0,0)
 sexe_male_position = (0,0)
 castrer_non_position = (0,0)
 castrer_oui_position = (0,0)
-position_suivant_race = (0,0)
-position_suivant_age = (0,0)
+position_race_text_box = (0,0)
 position_peu_actif = (0,0)
 position_moyen_actif = (0,0)
 position_tres_actif = (0,0)
 position_peu_maigre = (0,0)
 position_ideal_corps = (0,0)
 position_gros_coprs = (0,0)
-position_suivant_poids = (0,0)
 position_type_de_croquette = (0,0)
+position_test_menu = (0,0)
 position_finaliser = (0,0)
 position_vrai_prix = (0,0)
 
-variables = [number_of_animals, dog_position,sexe_female_position, sexe_male_position,castrer_non_position,castrer_oui_position,
-            position_suivant_race, position_suivant_age, position_peu_actif, position_moyen_actif,position_tres_actif,position_peu_maigre,
-            position_ideal_corps, position_gros_coprs, position_suivant_poids, position_type_de_croquette,position_finaliser, position_vrai_prix]
+variables = [number_of_animals, dog_position,sexe_female_position, sexe_male_position,castrer_non_position,castrer_oui_position, position_race_text_box,
+            position_peu_actif, position_moyen_actif,position_tres_actif,position_peu_maigre,
+            position_ideal_corps, position_gros_coprs, position_type_de_croquette,position_test_menu,
+            position_finaliser, position_vrai_prix]
