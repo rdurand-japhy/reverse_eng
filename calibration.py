@@ -13,8 +13,7 @@ def popupmsg(msg):
     print(B1)
     popup.mainloop()
 
-popupmsg('some string')
-print(autogui.position())
+
 number_of_animals = (0,0)
 dog_position = (0,0)
 sexe_female_position = (0,0)

@@ -10,18 +10,29 @@ import random
 import tkinter as tk
 from tkinter import ttk
 import pickle
+from PIL import Image, ImageTk
+from itertools import count
+import os 
+from selenium import webdriver
 from calibration import *
 NAME = ''
 DOG_MENU = ''
 
-fitness_level = {'lazy' : {'x': position_peu_actif.x, 'y':position_peu_actif.y},
-                 'normal' : {'x': position_moyen_actif.x, 'y' : position_moyen_actif.y},
-                 'very active' :  {'x': position_tres_actif.x, 'y' : position_tres_actif.y}}
+fitness_level = {'lazy' : {'x': position_peu_actif[0], 'y':position_peu_actif[1]},
+                 'normal' : {'x': position_moyen_actif[0], 'y' : position_moyen_actif[1]},
+                 'very active' :  {'x': position_tres_actif[0], 'y' : position_tres_actif[1]}}
 
-body_type = {'thin' : {'x': position_peu_maigre.x, 'y':position_peu_maigre.y},
-             'normal' : {'x': position_ideal_corps.x, 'y' : position_ideal_corps.y},
-              'fat' :  {'x': position_gros_coprs.x, 'y' : position_gros_coprs.x}} #we dont body shame here
+body_type = {'thin' : {'x': position_peu_maigre[0], 'y':position_peu_maigre[1]},
+             'normal' : {'x': position_ideal_corps[0], 'y' : position_ideal_corps[1]},
+              'fat' :  {'x': position_gros_coprs[0], 'y' : position_gros_coprs[1]}} #we dont body shame here
 
+def load_variables():
+    # get the values from the calibration.pkl file and load 
+    # the calibrations variables 
+    # only do it if the calibration has been performed 
+    #       (check if the folder exist)
+
+    pass
 
 def popupmsg(msg):
     popup = tk.Tk()
@@ -48,165 +59,171 @@ def tab_presses(number):
 def calibrate():
     variables = []
     weight = 5
-    
-    # create parameters to automate teh seleection of the dictionnaries
-    
-    webbrowser.open('https://www.japhy.fr/profile-builder/', new=1)
-    time.sleep(2)
-    popupmsg('calibration has started we will guide you')
-    
-    # number of animal variable
+    #checking if the calibration.pkl file exists
+    #if yes the calibration is skipped 
+    path = os.path.dirname(os.path.abspath("calibration.py"))
+    path  += '/calibration.pkl'
+    if not os.path.exists(path):
+        popupmsg("please make sure that you have chrome installed before starting the calibration")
+        # create parameters to automate teh seleection of the dictionnaries
+        driver = webdriver.Chrome()
+        driver.maximize_window()
+        driver.get("https://www.japhy.fr/profile-builder/'")
+        time.sleep(2)
+        popupmsg('calibration has started we will guide you')
+        
+        # number of animal variable
 
-    popupmsg('hover the mouse on the option that says 1 animal, do not click !!!')
-    time.sleep(2)
-    print(autogui.size())
-    autogui.click(autogui.position())
-    variables.append(autogui.position)
-    
-    # type of animal variable
+        popupmsg('hover the mouse on the option that says 1 animal, do not click !!!')
+        time.sleep(2)
+        print(autogui.size())
+        autogui.click(autogui.position())
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        
+        # type of animal variable
 
-    popupmsg('hover over the dog')
-    time.sleep(2)
-    autogui.click(autogui.position())
-    variables.append(autogui.position)
-    time.sleep(1)
-    autogui.write(get_name())
-    autogui.press('enter')
-    
-    #sexe variables
-    #female var
+        popupmsg('hover over the dog')
+        time.sleep(2)
+        autogui.click(autogui.position())
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        time.sleep(1)
+        autogui.write(get_name())
+        autogui.press('enter')
+        
+        #sexe variables
+        #female var
 
-    popupmsg('hover over female')
-    time.sleep(2)
-    variables.append(autogui.position)
-    
-    #male varialbe
+        popupmsg('hover over female')
+        time.sleep(2)
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        
+        #male varialbe
 
-    popupmsg('hover over male')
-    time.sleep(2)
-    autogui.click(autogui.position())
-    variables.append(autogui.position)
+        popupmsg('hover over male')
+        time.sleep(2)
+        autogui.click(autogui.position())
+        variables.append((autogui.position()[0], autogui.position()[1]))
 
-    #varialble castrer non
+        #varialble castrer non
 
-    popupmsg("hover over non")
-    time.sleep(1.5)
-    variables.append(autogui.position)
+        popupmsg("hover over non")
+        time.sleep(1.5)
+        variables.append((autogui.position()[0], autogui.position()[1]))
 
-    #variable castrer oui
+        #variable castrer oui
 
-    popupmsg("hover over oui")
-    time.sleep(1.5)
-    autogui.click(autogui.position())
-    variables.append(autogui.position)
-    time.sleep(2)
+        popupmsg("hover over oui")
+        time.sleep(1.5)
+        autogui.click(autogui.position())
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        time.sleep(2)
 
-    # variable textbox position for the race 
-     
-    popupmsg("hover over the text box")
-    time.sleep(2)
-    variables.append(autogui.position())
-    autogui.click(autogui.position(), clicks=2)
-    autogui.write('shiba inu')
-    autogui.press('tab')
-    autogui.press('down')
-    autogui.press('enter')
-    tab_presses(2)
-    autogui.press('enter')
-    time.sleep(1)
+        # variable textbox position for the race 
+        
+        popupmsg("hover over the text box")
+        time.sleep(2)
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        autogui.click(autogui.position(), clicks=2)
+        autogui.write('shiba inu')
+        autogui.press('tab')
+        autogui.press('down')
+        autogui.press('enter')
+        tab_presses(2)
+        autogui.press('enter')
+        time.sleep(1)
 
-    # the position for the suivant button of the age section 
-    # is not needed, we can access it with keyboard presses
-    
-    tab_presses(5)
-    autogui.press('enter')
-    time.sleep(2)
+        # the position for the suivant button of the age section 
+        # is not needed, we can access it with keyboard presses
+        
+        tab_presses(5)
+        autogui.press('enter')
+        time.sleep(2)
 
-    # variable lazy 
+        # variable lazy 
 
-    popupmsg("hover over lazy ... you know the drill by now")
-    time.sleep(2)
-    variables.append(autogui.position())
-    temp = autogui.position()
+        popupmsg("hover over lazy ... you know the drill by now")
+        time.sleep(2)
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        temp = autogui.position()
 
-    #variable normal activity level
+        #variable normal activity level
 
-    popupmsg("hover over normal activity level...")
-    time.sleep(2)
-    variables.append(autogui.position())
+        popupmsg("hover over normal activity level...")
+        time.sleep(2)
+        variables.append((autogui.position()[0], autogui.position()[1]))
 
-    #varialbe very active
+        #varialbe very active
 
-    popupmsg("hover over the last option")
-    time.sleep(2)
-    variables.append(autogui.position())
-    autogui.click(temp.x, temp.y)
-    time.sleep(1)
-    popupmsg("i promise its almost over, look at the progress bar")
-    
-    # varialbe slim
-    
-    popupmsg("hover over slim")
-    time.sleep(2)
-    variables.append(autogui.position())
-    temp = autogui.position()
-    
-    #varialble average body
-    
-    popupmsg("hover over normal")
-    time.sleep(2)
-    variables.append(autogui.position())
-    
-    #varialbe fat
+        popupmsg("hover over the last option")
+        time.sleep(2)
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        autogui.click(temp.x, temp.y)
+        time.sleep(1)
+        popupmsg("i promise its almost over, look at the progress bar")
+        
+        # varialbe slim
+        
+        popupmsg("hover over slim")
+        time.sleep(2)
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        temp = autogui.position()
+        
+        #varialble average body
+        
+        popupmsg("hover over normal")
+        time.sleep(2)
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        
+        #varialbe fat
 
-    popupmsg("hover over fat, we dont body shame over here")
-    time.sleep(2)
-    variables.append(autogui.position())
-    autogui.click(temp.x, temp.y)
-    time.sleep(1)
+        popupmsg("hover over fat, we dont body shame over here")
+        time.sleep(2)
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        autogui.click(temp.x, temp.y)
+        time.sleep(1)
 
-    # the position for the button suivant in the section
-    # for the weight is not needed since we can acces it with keyboard 
-    # presses
+        # the position for the button suivant in the section
+        # for the weight is not needed since we can acces it with keyboard 
+        # presses
 
-    tab_presses(2)
-    autogui.write(str(weight))
-    tab_presses(3)
-    autogui.press('enter')
+        tab_presses(2)
+        autogui.write(str(weight))
+        tab_presses(3)
+        autogui.press('enter')
 
-    # variable for dry food position
+        # variable for dry food position
 
-    popupmsg("hover over only dry foods")
-    time.sleep(2)
-    variables.append(autogui.position())
-    autogui.click(autogui.position())
+        popupmsg("hover over only dry foods")
+        time.sleep(2)
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        autogui.click(autogui.position())
 
-    # variable position test menu
+        # variable position test menu
 
-    popupmsg("hover over test menu")
-    time.sleep(2)
-    autogui.click(autogui.position())
-    variables.append(autogui.position())
+        popupmsg("hover over test menu")
+        time.sleep(2)
+        autogui.click(autogui.position())
+        variables.append((autogui.position()[0], autogui.position()[1]))
 
-    #variable position finaliser
-    variables.append(autogui.position())
-    time.sleep(2)
-    autogui.click(autogui.position())
-    # the two above variables have the same position
+        #variable position finaliser
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        time.sleep(2)
+        autogui.click(autogui.position())
+        # the two above variables have the same position
 
-    popupmsg('hover over apres mon essai')
-    time.sleep(2)
-    variables.append(autogui.position())
-    autogui.click(autogui.position())
+        popupmsg('hover over apres mon essai')
+        time.sleep(2)
+        variables.append((autogui.position()[0], autogui.position()[1]))
+        autogui.click(autogui.position())
 
-    with open('file.pkl', 'wb') as file:
-      
-    # A new file will be created
-        pickle.dump(variables, file)
+        with open('calibration.pkl', 'wb') as file:
+        
+        # A new file will be created
+            pickle.dump(variables, file)
 
-    popupmsg('congratulations you have successfully configured the script \n at least i hope so')
-    
-    # if there is time : play a video of anime girl dancing
+        popupmsg('congratulations you have successfully configured the script \n at least i hope so')
+        
+        # if there is time : play a video of anime girl dancing
 
 
 def navigate_site():
@@ -278,4 +295,55 @@ def create_file(string):
         print("The directory does not exist")
 
 #navigate_site()
-calibrate()
+#calibrate()
+
+class ImageLabel(tk.Label):
+    """a label that displays images, and plays them if they are gifs"""
+    def load(self, im):
+        if isinstance(im, str):
+            im = Image.open(im)
+        self.loc = 0
+        self.frames = []
+
+        try:
+            for i in count(1):
+                self.frames.append(ImageTk.PhotoImage(im.copy()))
+                im.seek(i)
+        except EOFError:
+            pass
+
+        try:
+            self.delay = im.info['duration']
+        except:
+            self.delay = 100
+
+        if len(self.frames) == 1:
+            self.config(image=self.frames[0])
+        else:
+            self.next_frame()
+
+    def unload(self):
+        self.config(image="")
+        self.frames = None
+
+    def next_frame(self):
+        if self.frames:
+            self.loc += 1
+            self.loc %= len(self.frames)
+            self.config(image=self.frames[self.loc])
+            self.after(self.delay, self.next_frame)
+
+root = tk.Tk()
+lbl = ImageLabel(root)
+lbl.pack()
+lbl.load('72Oz.gif')
+root.mainloop()
+
+
+def test():
+    number_of_animals = (0,0)
+    time.sleep(2)
+    number_of_animals = (autogui.position()[0], autogui.position()[1])
+    print(number_of_animals)
+
+#test()
