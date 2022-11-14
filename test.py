@@ -26,13 +26,6 @@ body_type = {'thin' : {'x': position_peu_maigre[0], 'y':position_peu_maigre[1]},
              'normal' : {'x': position_ideal_corps[0], 'y' : position_ideal_corps[1]},
               'fat' :  {'x': position_gros_coprs[0], 'y' : position_gros_coprs[1]}} #we dont body shame here
 
-def load_variables():
-    # get the values from the calibration.pkl file and load 
-    # the calibrations variables 
-    # only do it if the calibration has been performed 
-    #       (check if the folder exist)
-
-    pass
 
 def popupmsg(msg):
     popup = tk.Tk()
@@ -55,6 +48,14 @@ def get_name():
 def tab_presses(number):
     for i in range(number):
         autogui.press('tab')
+
+def load():
+    #load variables from the calibration.pkl file to the calibration.py file
+    file =  open('calibration.pkl', 'rb')
+    variables = file.load()
+    file.close()  
+    print("the values loaded : \n",variables)
+    
 
 def calibrate():
     variables = []
@@ -224,6 +225,24 @@ def calibrate():
         popupmsg('congratulations you have successfully configured the script \n at least i hope so')
         
         # if there is time : play a video of anime girl dancing
+        #===========================================================#        
+        
+        #                       anime girl dancing
+        root = tk.Tk()
+        root.title("finished !!")
+        root.geometry("500x500")
+        lbl = ImageLabel(root)
+        lbl.pack()
+        lbl.load('2eSh.gif')
+        root.mainloop()
+
+        #===========================================================#
+    else :
+        #load the variables in the array and then in the correct variable names
+        #start the site navigate function
+        load()
+
+        pass
 
 
 def navigate_site():
@@ -333,15 +352,9 @@ class ImageLabel(tk.Label):
             self.config(image=self.frames[self.loc])
             self.after(self.delay, self.next_frame)
 
-root = tk.Tk()
-lbl = ImageLabel(root)
-lbl.pack()
-lbl.load('72Oz.gif')
-root.mainloop()
-
 
 def test():
-    number_of_animals = (0,0)
+    number_of_animals = variables[0]
     time.sleep(2)
     number_of_animals = (autogui.position()[0], autogui.position()[1])
     print(number_of_animals)

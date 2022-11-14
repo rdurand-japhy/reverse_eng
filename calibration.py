@@ -32,7 +32,21 @@ position_test_menu = (0,0)
 position_finaliser = (0,0)
 position_vrai_prix = (0,0)
 
-variables = [number_of_animals, dog_position,sexe_female_position, sexe_male_position,castrer_non_position,castrer_oui_position, position_race_text_box,
-            position_peu_actif, position_moyen_actif,position_tres_actif,position_peu_maigre,
-            position_ideal_corps, position_gros_coprs, position_type_de_croquette,position_test_menu,
-            position_finaliser, position_vrai_prix]
+variables = {
+    "number_of_animals" : number_of_animals,
+    "dog_position": dog_position,
+    "sexe_female_position" :sexe_female_position,
+    "sexe_male_position": sexe_male_position,
+    "castrer_non_position" :castrer_non_position,
+    "castrer_oui_position" : castrer_oui_position, 
+    "position_race_text_box" : position_race_text_box,
+    "position_peu_actif" : position_peu_actif,
+    "position_moyen_actif" : position_moyen_actif,
+    "position_tres_actif" : position_tres_actif,
+    "position_peu_maigre" : position_peu_maigre,
+    "position_ideal_corps": position_ideal_corps,
+    "position_gros_coprs": position_gros_coprs, 
+    "position_type_de_croquette": position_type_de_croquette,
+    "position_test_menu" : position_test_menu,
+    "position_finaliser" : position_finaliser, 
+    "position_vrai_prix" : position_vrai_prix}
