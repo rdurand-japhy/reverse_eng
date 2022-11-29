@@ -15,16 +15,10 @@ from itertools import count
 import os 
 from selenium import webdriver
 from calibration import *
-NAME = ''
+from pathlib import Path
+
+FILE_NAME = ''
 DOG_MENU = ''
-
-fitness_level = {'lazy' : {'x': position_peu_actif[0], 'y':position_peu_actif[1]},
-                 'normal' : {'x': position_moyen_actif[0], 'y' : position_moyen_actif[1]},
-                 'very active' :  {'x': position_tres_actif[0], 'y' : position_tres_actif[1]}}
-
-body_type = {'thin' : {'x': position_peu_maigre[0], 'y':position_peu_maigre[1]},
-             'normal' : {'x': position_ideal_corps[0], 'y' : position_ideal_corps[1]},
-              'fat' :  {'x': position_gros_coprs[0], 'y' : position_gros_coprs[1]}} #we dont body shame here
 
 
 def popupmsg(msg):
@@ -49,16 +43,22 @@ def tab_presses(number):
     for i in range(number):
         autogui.press('tab')
 
-def load():
+def load(variable):
     #load variables from the calibration.pkl file to the calibration.py file
+    iter = 0
     file =  open('calibration.pkl', 'rb')
-    variables = file.load()
+    var = pickle.load(file)
     file.close()  
-    print("the values loaded : \n",variables)
+    print("the values loaded : \n",var)
+    for x in variable:
+        variable[x] = var[iter]
+        iter += 1
+        print(x,variable[x])
+    file.close()
     
 
 def calibrate():
-    variables = []
+    var = []
     weight = 5
     #checking if the calibration.pkl file exists
     #if yes the calibration is skipped 
@@ -69,7 +69,7 @@ def calibrate():
         # create parameters to automate teh seleection of the dictionnaries
         driver = webdriver.Chrome()
         driver.maximize_window()
-        driver.get("https://www.japhy.fr/profile-builder/'")
+        driver.get("https://www.japhy.fr/profile-builder/")
         time.sleep(2)
         popupmsg('calibration has started we will guide you')
         
@@ -79,14 +79,14 @@ def calibrate():
         time.sleep(2)
         print(autogui.size())
         autogui.click(autogui.position())
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         
         # type of animal variable
 
         popupmsg('hover over the dog')
         time.sleep(2)
         autogui.click(autogui.position())
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         time.sleep(1)
         autogui.write(get_name())
         autogui.press('enter')
@@ -96,34 +96,34 @@ def calibrate():
 
         popupmsg('hover over female')
         time.sleep(2)
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         
         #male varialbe
 
         popupmsg('hover over male')
         time.sleep(2)
         autogui.click(autogui.position())
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
 
         #varialble castrer non
 
         popupmsg("hover over non")
         time.sleep(1.5)
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
 
         #variable castrer oui
 
         popupmsg("hover over oui")
         time.sleep(1.5)
         autogui.click(autogui.position())
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         time.sleep(2)
 
         # variable textbox position for the race 
         
         popupmsg("hover over the text box")
         time.sleep(2)
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         autogui.click(autogui.position(), clicks=2)
         autogui.write('shiba inu')
         autogui.press('tab')
@@ -144,20 +144,20 @@ def calibrate():
 
         popupmsg("hover over lazy ... you know the drill by now")
         time.sleep(2)
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         temp = autogui.position()
 
         #variable normal activity level
 
         popupmsg("hover over normal activity level...")
         time.sleep(2)
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
 
         #varialbe very active
 
         popupmsg("hover over the last option")
         time.sleep(2)
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         autogui.click(temp.x, temp.y)
         time.sleep(1)
         popupmsg("i promise its almost over, look at the progress bar")
@@ -166,20 +166,20 @@ def calibrate():
         
         popupmsg("hover over slim")
         time.sleep(2)
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         temp = autogui.position()
         
         #varialble average body
         
         popupmsg("hover over normal")
         time.sleep(2)
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         
         #varialbe fat
 
         popupmsg("hover over fat, we dont body shame over here")
         time.sleep(2)
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         autogui.click(temp.x, temp.y)
         time.sleep(1)
 
@@ -196,7 +196,7 @@ def calibrate():
 
         popupmsg("hover over only dry foods")
         time.sleep(2)
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         autogui.click(autogui.position())
 
         # variable position test menu
@@ -204,23 +204,23 @@ def calibrate():
         popupmsg("hover over test menu")
         time.sleep(2)
         autogui.click(autogui.position())
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
 
         #variable position finaliser
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         time.sleep(2)
         autogui.click(autogui.position())
         # the two above variables have the same position
 
         popupmsg('hover over apres mon essai')
         time.sleep(2)
-        variables.append((autogui.position()[0], autogui.position()[1]))
+        var.append((autogui.position()[0], autogui.position()[1]))
         autogui.click(autogui.position())
 
         with open('calibration.pkl', 'wb') as file:
         
         # A new file will be created
-            pickle.dump(variables, file)
+            pickle.dump(var, file)
 
         popupmsg('congratulations you have successfully configured the script \n at least i hope so')
         
@@ -228,20 +228,14 @@ def calibrate():
         #===========================================================#        
         
         #                       anime girl dancing
-        root = tk.Tk()
-        root.title("finished !!")
-        root.geometry("500x500")
-        lbl = ImageLabel(root)
-        lbl.pack()
-        lbl.load('2eSh.gif')
-        root.mainloop()
+        anime_girl()
 
         #===========================================================#
     else :
         #load the variables in the array and then in the correct variable names
         #start the site navigate function
-        load()
-
+        load(variables)
+        navigate_site()
         pass
 
 
@@ -251,64 +245,78 @@ def navigate_site():
     # and we need to send the information collected to a data base 
     # we need to loop throught this function and get all the possible 
     # combinations for the different var of the site
+    # elements to iterate throught
+    # sex, castrer, race, activity level, fitness level
+    #5 for loops we will omit looping through the breeds for now 
+    # will be added in a later version 
+    sex = [variables["sexe_male_position"],variables["sexe_female_position"] ]
+    castrer = [variables["castrer_oui_position"],variables["castrer_non_position"] ]
+    activity = [variables["position_peu_actif"],variables["position_moyen_actif"], variables["position_tres_actif"]]
+    fitness = [variables["position_peu_maigre"],variables["position_ideal_corps"], variables["position_gros_coprs"]]
 
-    age = 3
-    weight = 5
+    for x in sex: 
+        for y in castrer:
+            for z in activity:
+                for w in fitness:
+                    for i in range(1, 10):
+                        for n in range(8, 30):
+                # create parameters to automate teh seleection of the dictionnaries
+                            webbrowser.open('https://www.japhy.fr/profile-builder/', new=2)
+                            time.sleep(3)
 
-    # create parameters to automate teh seleection of the dictionnaries
-    webbrowser.open('https://www.japhy.fr/profile-builder/', new=2)
-    time.sleep(2)
+                            print(autogui.size())
+                            autogui.click(variables["number_of_animals"])
+                            time.sleep(1)
+                            autogui.click(variables["dog_position"])
+                            time.sleep(1)
+                            autogui.write(get_name())
+                            autogui.press('enter')
+                            time.sleep(2)
+                            # iterate between male and female
+                            autogui.click(x)
+                            time.sleep(0.5)
+                            #castrer
+                            autogui.click(y)
+                            time.sleep(2)
+                            autogui.click(variables["position_race_text_box"])
+                            autogui.write('shiba inu')
+                            autogui.press('tab')
+                            autogui.press('down')
+                            autogui.press('enter')
+                            tab_presses(2)
+                            autogui.press('enter')
+                            time.sleep(1)
+                            tab_presses(2)
+                            autogui.write(str(i))
+                            tab_presses(3)
+                            autogui.press('enter')
+                            time.sleep(2)
+                            autogui.click(z)
+                            time.sleep(1)
+                            autogui.click(w)
+                            time.sleep(1)
+                            tab_presses(2)
+                            autogui.write(str(n))
+                            tab_presses(3)
+                            autogui.press('enter')
+                            time.sleep(2)
+                            autogui.click(x=706, y=605)
+                            time.sleep(1)
+                            autogui.hotkey('ctrl','a')
+                            autogui.hotkey('ctrl', 'c')
+                            DOG_MENU = paper.paste()
+                            print(DOG_MENU)
+                            create_file(DOG_MENU)
 
-    print(autogui.size())
-    autogui.click(x = 500, y = 800)
-    time.sleep(1)
-    autogui.click(x=1197, y=717)
-    time.sleep(1)
-    autogui.write(get_name())
-    autogui.press('enter')
-    time.sleep(2)
-    autogui.click(x=662, y=550)
-    time.sleep(0.5)
-    autogui.click(x=662, y=550)
-    time.sleep(2)
-    autogui.click(x=871, y=490, clicks=2)
-    autogui.write('shiba inu')
-    autogui.press('tab')
-    autogui.press('down')
-    autogui.press('enter')
-    tab_presses(2)
-    autogui.press('enter')
-    time.sleep(1)
-    tab_presses(3)
-    autogui.write(str(age))
-    tab_presses(2)
-    autogui.press('enter')
-    time.sleep(2)
-    autogui.click(fitness_level['lazy']['x'], fitness_level['lazy']['y'])
-    time.sleep(1)
-    autogui.click(body_type['thin']['x'], body_type['thin']['y'])
-    time.sleep(1)
-    tab_presses(2)
-    autogui.write(str(weight))
-    tab_presses(3)
-    autogui.press('enter')
-    time.sleep(2)
-    autogui.click(x=706, y=605)
-    time.sleep(1)
-    autogui.hotkey('ctrl','a')
-    autogui.hotkey('ctrl', 'c')
-    DOG_MENU = paper.paste()
-    print(DOG_MENU)
-    create_file(DOG_MENU)
-    print(NAME)
+                        http = urllib3.PoolManager()
+                        r = http.request('GET', 'https://www.japhy.fr/sur-mesure/japhy-b')
+                        r.status
 
-http = urllib3.PoolManager()
-r = http.request('GET', 'https://www.japhy.fr/sur-mesure/japhy-b')
-r.status
-
+# open line is prone to errors if we run the script on a other system 
 def create_file(string):
+    p = Path(__file__).with_name('menu.txt')
     try:
-        with open('C:/Users/carlo/python_project/menu.txt', 'w') as f:
+        with p.open('w',encoding="utf-8") as f:
             f.write(string)
     except FileNotFoundError:
         print("The directory does not exist")
@@ -352,6 +360,14 @@ class ImageLabel(tk.Label):
             self.config(image=self.frames[self.loc])
             self.after(self.delay, self.next_frame)
 
+def anime_girl():
+    root = tk.Tk()
+    root.title("finished !!")
+    root.geometry("500x500")
+    lbl = ImageLabel(root)
+    lbl.pack()
+    lbl.load('2eSh.gif')
+    root.mainloop()
 
 def test():
     number_of_animals = variables[0]
@@ -359,4 +375,7 @@ def test():
     number_of_animals = (autogui.position()[0], autogui.position()[1])
     print(number_of_animals)
 
-#test()
+
+calibrate()
+
+#TODO add data retreiving for the content of the different menus ingredients etc
