@@ -262,7 +262,7 @@ def navigate_site1():
                 for w in fitness:
                     for i in range(1, 10):
                         for n in range(8, 30):
-                # create parameters to automate teh seleection of the dictionnaries
+                            # create parameters to automate teh seleection of the dictionnaries
                             webbrowser.open('https://www.japhy.fr/profile-builder/', new=2)
                             time.sleep(3)
 
@@ -364,7 +364,39 @@ def navigate_site():
                                 # get html
                                 get_html()
                                 
+def search_string_text_file(search_string):
+    indices = []
+    #search the string in the text file
+    #open the file
+    p = Path(__file__).with_name('menu.txt')
+    #read the file
+    #search the string
+    #return the position of the string
+    with open(p, 'r') as file:
 
+        for line_number, line in enumerate(file, 1):
+                start_index = line.find(search_string)
+                while start_index >= 0:
+                    indices.append((line_number, start_index))
+                    start_index = line.find(search_string, start_index + len(search_string))
+        return indices
+
+
+def menu_items(indicies):
+    #open the file
+    p = Path(__file__).with_name('menu.txt')
+    # open the sample file used
+    file = open(p, 'r')
+    
+    # read the content of the file opened
+    content = file.readlines()
+    
+    # read 10th line from the file
+    
+    print(content[indicies[0][0] + 1])
+    print(content[indicies[1][0] + 1])
+   
+   
 
 def get_html():
     autogui.click(button='right')
@@ -375,8 +407,10 @@ def get_html():
     autogui.press('down')
     time.sleep(4)
     autogui.hotkey('ctrl', 'c')
-    # print(paper.paste())
-    # return paper.paste()
+    win32clipboard.OpenClipboard()
+    data = win32clipboard.GetClipboardData()
+    win32clipboard.CloseClipboard()
+    create_file(data)
     
 
 def enter_weight(weight):
@@ -544,10 +578,7 @@ def test():
     number_of_animals = (autogui.position()[0], autogui.position()[1])
     print(number_of_animals)
 
-# navigate_site()
-win32clipboard.OpenClipboard()
-data = win32clipboard.GetClipboardData()
-win32clipboard.CloseClipboard()
-create_file(data)
-
+#navigate_site()
+indicies = search_string_text_file('libs-ui-src-ProductCard__title--LgNam')
+menu_items(indicies)
 #TODO add data retreiving for the content of the different menus ingredients etc
