@@ -14,10 +14,11 @@ from PIL import Image, ImageTk
 from itertools import count
 import os 
 from selenium import webdriver
-from calibration import *
 from pathlib import Path
 import cv2
 import numpy as np
+import win32clipboard
+import exel
 
 FILE_NAME = ''
 DOG_MENU = ''
@@ -262,9 +263,8 @@ def navigate_site1():
                 for w in fitness:
                     for i in range(1, 10):
                         for n in range(8, 30):
-                # create parameters to automate teh seleection of the dictionnaries
+                            # create parameters to automate teh seleection of the dictionnaries
                             webbrowser.open('https://www.japhy.fr/profile-builder/', new=2)
-                            
                             time.sleep(3)
 
                             print(autogui.size())
@@ -315,40 +315,204 @@ def navigate_site1():
                         r = http.request('GET', 'https://www.japhy.fr/sur-mesure/japhy-b')
                         r.status
 
-def page_loaded(original : str):
-    myScreenshot = autogui.screenshot()
-    root_path  = os.getcwd()
-    path = root_path + '\current_page.png'
-    myScreenshot.save(path)
+def screenshot():
+    image = autogui.screenshot()
+    image = cv2.cvtColor(np.array(image),
+                     cv2.COLOR_RGB2BGR)
+    cv2.imwrite("screenshot.png", image)
 
-
-    if autogui.locateOnScreen('page_1.png', confidence=0.2) != None:
-        return True
-    else :
-        return False
-
-
+def click(target):
+    screenshot()
+    position = find_position("screenshot.png",target)
+    autogui.click(position)
+    time.sleep(1)
 
 def navigate_site():
-    popupmsg('VERY IMPORTANT TURN OFF DARK MODE ON YOUR CHROME, \n PERFORMANCE OF THE AI WILL BE AFFECTED IF DARK MODE IS TURNED ON!!!')
     sex  = ['male.png', 'femelle.png']
     castrer = ['castrer_oui.png', 'castrer_non.png']
     activity = ['actif_peu.png', 'actif_normale.png', 'actif_tres.png']
     fitness =  ['maigre.png', 'poids_normale.png','gros.png']
+
     for x in sex: 
         for y in castrer:
             for z in activity:
                 for w in fitness:
-                    for i in range(1, 10):
-                        for n in range(8, 30):
-                            webbrowser.open('https://www.japhy.fr/profile-builder/', new=2)
-                            #page 1 is the page where we select the number of menus
-                            while page_loaded('page_1.png') != True:
-                                pass
-                            posx, posy = find_position('current_page.png','1_animal.png')
-                            print(posx, posy)
+                    for i in range(1, 10): # age
+                        for n in range(8, 30): # weight
+                                get_to_starting_position()
+                                time.sleep(2)
+                                click(x)
+                                
+                                click(y)
+                                
+                                # chose the race of the dog
+                                enter_race('shiba inu')
+                                
+                                # enter age
+                                enter_age(i)
+                                
+                                click(z)
+                                
+                                click(w)
 
-def find_position(screenshot :str, target : str):
+                                # enter weight
+                                enter_weight(n)
+
+                                # select croquette type
+
+                                click('croquettes.png')
+
+                                # get html
+                                get_html()
+
+                                # get html indices
+                                indicies =search_string_text_file('libs-ui-src-ProductCard__title--LgNam')
+
+                                # get the meals
+                                meals  = menu_items(indicies)
+                                
+                                
+                                # removing the .png from the strings
+                                sex_str = x[:-4]
+                                castrer_str = y[:-4]
+                                activity_str = z[:-4]
+                                fitness_str = w[:-4]
+
+                                # send the information to the exel file
+                                # put all the values in a single array
+                                array = [sex_str, castrer_str,'shiba inu',i, activity_str, fitness_str, n, meals[0], meals[1]]
+                                exel.add_data(array)
+    anime_girl()
+
+
+                                
+def search_string_text_file(search_string):
+    indices = []
+    #search the string in the text file
+    #open the file
+    p = Path(__file__).with_name('menu.txt')
+    #read the file
+    #search the string
+    #return the position of the string
+    with open(p, 'r') as file:
+
+        for line_number, line in enumerate(file, 1):
+                start_index = line.find(search_string)
+                while start_index >= 0:
+                    indices.append((line_number, start_index))
+                    start_index = line.find(search_string, start_index + len(search_string))
+        return indices
+
+
+def menu_items(indicies):
+    #open the file
+    p = Path(__file__).with_name('menu.txt')
+    # open the sample file used
+    file = open(p, 'r')
+    
+    # read the content of the file opened
+    content = file.readlines()
+    
+    # read 10th line from the file
+    
+    print(content[indicies[0][0] + 1])
+    print(content[indicies[1][0] + 1])
+
+    return (content[indicies[0][0] + 1],  content[indicies[1][0] + 1])
+   
+   
+
+def get_html():
+    autogui.click(button='right')
+    autogui.press('up')
+    autogui.press('enter')
+    time.sleep(2)
+    autogui.press('up', 50)
+    autogui.press('down')
+    time.sleep(4)
+    autogui.hotkey('ctrl', 'c')
+    win32clipboard.OpenClipboard()
+    data = win32clipboard.GetClipboardData()
+    win32clipboard.CloseClipboard()
+    create_file(data)
+    
+
+def enter_weight(weight):
+    tab_presses(2)
+    weight = weight/2.2
+    weight = round(weight, 1)
+    autogui.write(str(weight))
+    tab_presses(3)
+    autogui.press('enter')
+    time.sleep(1)
+
+
+def get_to_starting_position():
+    #we first need to navigate to the part where it asks if it is a male or a female
+    #---------------------------------------------------------------------------------
+    #we open the webpage and wait for it too load
+    webbrowser.open('https://www.japhy.fr/profile-builder/', new=2)
+    time.sleep(3)
+    
+    #scan the page for the image that indicates 1 animal and click on it
+    click('1_animal.png')
+    #---------------------------------------------------------------------------------
+    # do the same steps for the dog selection
+    time.sleep(1)
+    click('chien.png')
+    #enter name of pet
+    time.sleep(1)
+    autogui.write(get_name())
+    autogui.press('enter')
+    #---------------------------------------------------------------------------------
+
+def enter_age(age):
+    tab_presses(2)
+    autogui.write(str(age))
+    tab_presses(3)
+    autogui.press('enter')
+    time.sleep(1)
+
+def enter_race(race):
+    tab_presses(1)
+    autogui.write(race)
+    autogui.press('tab')
+    autogui.press('down')
+    autogui.press('enter')
+    tab_presses(2)
+    autogui.press('enter')
+    time.sleep(1)
+
+def find_position(screenshot, target):
+    img1 = cv2.imread(target,0)
+    img2 = cv2.imread(screenshot,0)
+    
+    orb = cv2.ORB_create()
+    kp1 , des1 = orb.detectAndCompute(img1, None)
+    kp2 , des2 = orb.detectAndCompute(img2, None)
+
+    imgkp1 = cv2.drawKeypoints(img1, kp1, None)
+    imgkp2 = cv2.drawKeypoints(img2, kp2, None)
+
+    bf = cv2.BFMatcher()
+
+    matches = bf.knnMatch(des1, des2, k=2)
+
+    good = []
+    for m, n in matches:
+        if m.distance< 0.75*n.distance:
+            good.append([m])
+    
+    img3 = cv2.drawMatchesKnn(img1, kp1, img2, kp2, good, None, flags = 2)
+
+    #this shows the detection here for debugging purposes 
+
+    # cv2.imshow('kp1', imgkp1)
+    # cv2.imshow('kp2', imgkp2)
+    # cv2.imshow('img1', img1)
+    # cv2.imshow('img2', img2)
+    # cv2.imshow('img3', img3)
+
         
     method = cv2.TM_SQDIFF_NORMED
 
@@ -372,72 +536,9 @@ def find_position(screenshot :str, target : str):
     # Step 3: Draw the rectangle on large_image
     # the print statement shows the beginnig and end of the rectangle
     # print((MPx,MPy),(MPx+tcols,MPy+trows))
-    
-    # converting the coordinates of the square into the x, y coordinates of the mouse
+    #converting the begennig and end positions to be the center of the rectangle only
+    return (MPx + (tcols/2),MPy +(trows/2))
 
-    x = (MPx + MPx+tcols)/2
-    y = (MPy + MPy+trows)/2
-
-    return x,y
-
-# the arguments target and screenshot are the string name of the icon image and the screenshot
-# tested all possibilities every thing seems to work fine except male and female,
-# the image recognition always picks femalle regardless of the input given
-def icon_tester(screenshot : str, target : str):
-    img1 = cv2.imread(target)
-    img2 = cv2.imread(screenshot)
-    
-    orb = cv2.ORB_create()
-    kp1 , des1 = orb.detectAndCompute(img1, None)
-    kp2 , des2 = orb.detectAndCompute(img2, None)
-
-    imgkp1 = cv2.drawKeypoints(img1, kp1, None)
-    imgkp2 = cv2.drawKeypoints(img2, kp2, None)
-
-    bf = cv2.BFMatcher()
-
-    matches = bf.knnMatch(des1, des2, k=2)
-
-    good = []
-    for m, n in matches:
-        if m.distance< 0.75*n.distance:
-            good.append([m])
-
-
-    img3 = cv2.drawMatchesKnn(img1, kp1, img2, kp2, good, None, flags = 2)
-    
-    cv2.imshow('kp1', imgkp1)
-    cv2.imshow('kp2', imgkp2)
-    cv2.imshow('img1', img1)
-    cv2.imshow('img2', img2)
-    cv2.imshow('img3', img3)
-
-    method = cv2.TM_SQDIFF_NORMED
-
-    # Read the images from the file
-    small_image = cv2.imread(target)
-    large_image = cv2.imread(screenshot)
-
-    result = cv2.matchTemplate(small_image, large_image, method)
-
-    # We want the minimum squared difference
-    mn,_,mnLoc,_ = cv2.minMaxLoc(result)
-
-    # Draw the rectangle:
-    # Extract the coordinates of our best match
-    MPx,MPy = mnLoc
-
-    # Step 2: Get the size of the template. This is the same size as the match.
-    trows,tcols = small_image.shape[:2]
-
-    # Step 3: Draw the rectangle on large_image
-    cv2.rectangle(large_image, (MPx,MPy),(MPx+tcols,MPy+trows),(0,0,255),2)
-
-    # Display the original image with the rectangle around the match.
-    cv2.imshow('output',large_image)
-
-    cv2.waitKey(0)
-    
 
 # open line is prone to errors if we run the script on a other system 
 def create_file(string):
@@ -502,11 +603,8 @@ def test():
     number_of_animals = (autogui.position()[0], autogui.position()[1])
     print(number_of_animals)
 
-
 navigate_site()
 
-#icon_tester('activiter.png', 'apres_essai_button.png')
 
-
-#page_loaded('page_1.png')
-#TODO add data retreiving for the content of the different menus ingredients etc
+# TODO add data retreiving for the content of the different menus ingredients etc
+# TODO add a function to get the information about the ingredients of the menu and the size of the croquettes
