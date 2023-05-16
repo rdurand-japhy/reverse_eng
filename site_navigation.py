@@ -113,7 +113,26 @@ def navigate_site():
                                 # get the meals
                                 meals  = menu_items(indicies)
                                 
+                                # proceed in the site
+                                click('proceed_menu.png')
+
+                                # proceed to the finalized order
+                                click('finaliser_commande_button.png')
                                 
+                                # proceed to the payment
+                                click('apres_essai_button.png')
+
+
+                                get_html()
+
+                                # find the price of the menu
+                                # only the first price is taken
+                                indicies =search_string_text_file('libs-ui-src-ProductCard__title--LgNam')
+
+                                price = menu_price(indicies[0])
+
+                                price = seperating_integer_from_string(price)
+
                                 # removing the .png from the strings
                                 sex_str = x[:-4]
                                 castrer_str = y[:-4]
@@ -122,7 +141,7 @@ def navigate_site():
 
                                 # send the information to the exel file
                                 # put all the values in a single array
-                                array = [sex_str, castrer_str,'shiba inu',i, activity_str, fitness_str, n, meals[0], meals[1]]
+                                array = [sex_str, castrer_str,'shiba inu',i, activity_str, fitness_str, n, meals[0], meals[1], price]
                                 exel.add_data(array)
     anime_girl()
 
@@ -153,9 +172,33 @@ def search_string_text_file(search_string):
                     start_index = line.find(search_string, start_index + len(search_string))
         return indices
 
+def seperating_integer_from_string(string):
+    int_string = ""
+    for char in string:
+        if char.isdigit():
+            int_string += char
+        if char == ",":
+            int_string += ","
+    return int_string
+
+def menu_price(index):
+    #open the file
+    p = Path(__file__).with_name('menu.txt')
+
+    # open the sample file used
+    file = open(p, 'r')
+    
+    # read the content of the file opened
+    content = file.readlines()
+    
+    # read 10th line from the file
+    print(content[index])
+    return (content[index])
+
 def menu_items(indicies):
     #open the file
     p = Path(__file__).with_name('menu.txt')
+
     # open the sample file used
     file = open(p, 'r')
     
@@ -229,6 +272,8 @@ def enter_race(race):
     time.sleep(1)
 
 def find_position(screenshot, target):
+    target = Path(__file__).resolve().with_name('pictures').joinpath(target)
+    target = str(target)
     img1 = cv2.imread(target,0)
     img2 = cv2.imread(screenshot,0)
     
@@ -352,3 +397,5 @@ navigate_site()
 
 # TODO add data retreiving for the content of the different menus ingredients etc
 # TODO add a function to get the information about the ingredients of the menu and the size of the croquettes
+# TODO get the final price of croquettes
+# TODO put all the reference pictures in a seperate file and change the path to the pictures to the pictures in the file

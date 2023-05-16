@@ -29,6 +29,7 @@ if (not exists(p)):
     worksheet.write('G1', 'weight')
     worksheet.write('H1', 'menu item 1')
     worksheet.write('I1', 'menu item 2')
+    worksheet.write('J1', 'price')    
 
 
     # Finally, close the Excel file
@@ -55,6 +56,7 @@ def add_data(array):
     ws.cell(row, 7, array[6])
     ws.cell(row, 8, array[7])
     ws.cell(row, 9, array[8])
+    ws.cell(row, 10, array[9])
     book.save('japhy.xlsx')
     book.close()
 
