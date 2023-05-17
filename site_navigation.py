@@ -127,22 +127,35 @@ def navigate_site():
 
                                 # find the price of the menu
                                 # only the first price is taken
-                                indicies =search_string_text_file('libs-ui-src-ProductCard__title--LgNam')
+                                indicies =search_string_text_file('€')
 
                                 price = menu_price(indicies[0])
 
                                 price = seperating_integer_from_string(price)
 
+                                price =  convert_euro_to_dollar(price)
+
+                                # cleaning the string before putting them in the exel file
                                 # removing the .png from the strings
                                 sex_str = x[:-4]
                                 castrer_str = y[:-4]
                                 activity_str = z[:-4]
                                 fitness_str = w[:-4]
-
+                                # remove the spaces at the begining of the string
+                                meal0=remove_spaces(meals[0])
+                                meal1=remove_spaces(meals[1])
+                                # replace Ã@ to a é
+                                meal0 = meal0.replace("Ã©", "é")
+                                meal1 = meal1.replace("Ã©", "é")
+                                
                                 # send the information to the exel file
                                 # put all the values in a single array
-                                array = [sex_str, castrer_str,'shiba inu',i, activity_str, fitness_str, n, meals[0], meals[1], price]
+                                array = [sex_str, castrer_str,'shiba inu',i, activity_str, fitness_str, n, meal0, meal1, price]
                                 exel.add_data(array)
+
+                                # close the current tab
+                                autogui.click(autogui.position())
+                                autogui.hotkey('ctrl', 'w')
     anime_girl()
 
 def castrer_or_not(decision):
@@ -154,7 +167,24 @@ def castrer_or_not(decision):
         tab_presses(2)
         autogui.press('enter')
         time.sleep(1)
-                                
+
+def convert_price(price):
+    price = price.replace(",", ".")
+    price = float(price)
+    return price
+
+def convert_euro_to_dollar(price):
+    #convert price to flaot 
+    price = convert_price(price)
+    dollar = price * 1.3
+    return round(dollar, 2)
+
+def remove_spaces(string):
+    for char in string:
+        if char == " ":
+            string = string.replace(char, "")
+    return string
+
 def search_string_text_file(search_string):
     indices = []
     #search the string in the text file
@@ -163,14 +193,25 @@ def search_string_text_file(search_string):
     #read the file
     #search the string
     #return the position of the string
-    with open(p, 'r') as file:
-
+    with open(p, 'r', encoding="utf8") as file:
+        
         for line_number, line in enumerate(file, 1):
                 start_index = line.find(search_string)
+                
                 while start_index >= 0:
                     indices.append((line_number, start_index))
                     start_index = line.find(search_string, start_index + len(search_string))
+        if len(indices) < 1:
+            raise ValueError("there are no such string in the file")
         return indices
+
+def erase_menu():
+    #open the file
+    p = Path(__file__).with_name('menu.txt')
+
+    with open(p,'r+') as file:
+        file.truncate(0)
+
 
 def seperating_integer_from_string(string):
     int_string = ""
@@ -186,14 +227,13 @@ def menu_price(index):
     p = Path(__file__).with_name('menu.txt')
 
     # open the sample file used
-    file = open(p, 'r')
+    file = open(p, 'r',  encoding="utf8")
     
     # read the content of the file opened
     content = file.readlines()
-    
-    # read 10th line from the file
-    print(content[index])
-    return (content[index])
+    print('not working index: '+str(index))
+    print(content[index[0] - 1])
+    return (content[index[0] -  1])
 
 def menu_items(indicies):
     #open the file
@@ -206,7 +246,7 @@ def menu_items(indicies):
     content = file.readlines()
     
     # read 10th line from the file
-    
+    print('working index: '+ str(indicies[0][0]))
     print(content[indicies[0][0] + 1])
     print(content[indicies[1][0] + 1])
 
@@ -236,6 +276,7 @@ def enter_weight(weight):
     time.sleep(1)
 
 def get_to_starting_position():
+    erase_menu()
     #we first need to navigate to the part where it asks if it is a male or a female
     #---------------------------------------------------------------------------------
     #we open the webpage and wait for it too load
@@ -331,7 +372,7 @@ def find_position(screenshot, target):
 
 # open line is prone to errors if we run the script on a other system 
 def create_file(string):
-    p = Path(__file__).with_name('menu.txt')
+    p = Path(__file__).resolve().with_name('menu.txt')
     try:
         with p.open('w',encoding="utf-8") as f:
             f.write(string)
@@ -397,5 +438,3 @@ navigate_site()
 
 # TODO add data retreiving for the content of the different menus ingredients etc
 # TODO add a function to get the information about the ingredients of the menu and the size of the croquettes
-# TODO get the final price of croquettes
-# TODO put all the reference pictures in a seperate file and change the path to the pictures to the pictures in the file
